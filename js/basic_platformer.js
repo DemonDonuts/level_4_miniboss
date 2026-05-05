@@ -5,6 +5,8 @@ var context;
 var timer;
 var interval;
 var player;
+var jumpsLeft = 2;
+var won = false;
 
 
 	canvas = document.getElementById("canvas");
@@ -17,6 +19,22 @@ var player;
 		platform0.x = platform0.width/2;
 		platform0.y = canvas.height - platform0.height/2;
 		platform0.color = "#66ff33";
+
+	platform1 = new GameObject();
+		platform1.width = 200;
+		platform1.x = platform0.width/2;
+		platform1.y = canvas.height - platform1.height/2;
+		platform1.x = 480;
+		platform1.y = 400;
+		platform1.color = "#66ff33";
+
+	platform2 = new GameObject();
+		platform2.width = 200;
+		platform2.x = platform0.width/2;
+		platform2.y = canvas.height - platform2.height/2;
+		platform2.x = 900;
+		platform2.y = 200;
+		platform2.color = "#66ff33";
 		
 	goal = new GameObject({width:24, height:50, x:canvas.width-50, y:100, color:"#00ffff"});
 	
@@ -34,10 +52,17 @@ function animate()
 	
 	context.clearRect(0,0,canvas.width, canvas.height);	
 
-	if(w && player.canJump && player.vy ==0)
+	// if(w && player.canJump && player.vy ==0)
+	// {
+	// 	player.canJump = false;
+	// 	player.vy += player.jumpHeight;
+	// }
+
+	if (w && jumpsLeft > 0)
 	{
-		player.canJump = false;
-		player.vy += player.jumpHeight;
+		player.vy = player.jumpHeight;
+		jumpsLeft--;
+		w = false;
 	}
 
 	if(a)
@@ -62,6 +87,7 @@ function animate()
 	{
 		player.y--;
 		player.vy = 0;
+		jumpsLeft = 2;
 		player.canJump = true;
 	}
 	while(platform0.hitTestPoint(player.left()) && player.vx <=0)
@@ -76,6 +102,7 @@ function animate()
 	}
 	while(platform0.hitTestPoint(player.top()) && player.vy <=0)
 	{
+		player.canJump = true;
 		player.y++;
 		player.vy = 0;
 	}
@@ -87,16 +114,84 @@ function animate()
 	//---------You can do anything you would like except break the following rules:
 	//---------RULE1: You cannot spawn your player on the pearl!
 	//---------RULE2: You cannot change the innitial locations of platform0 or the goal! 
-		
-	if(player.hitTestObject(goal))
+
+
+	//platform 2
+	while(platform1.hitTestPoint(player.bottom()) && player.vy >=0)
 	{
+		player.y--;
+		player.vy = 0;
+		jumpsLeft = 2;
+		player.canJump = true;
+	}
+	while(platform1.hitTestPoint(player.left()) && player.vx <=0)
+	{
+		player.x++;
+		player.vx = 0;
+	}
+	while(platform1.hitTestPoint(player.right()) && player.vx >=0)
+	{
+		player.x--;
+		player.vx = 0;
+	}
+	while(platform1.hitTestPoint(player.top()) && player.vy <=0)
+	{
+		player.canJump = true;
+		jumpsLeft = 2;
+		player.y++;
+		player.vy = 0;
+	}
+
+
+	//platform 3
+	while(platform2.hitTestPoint(player.bottom()) && player.vy >=0)
+	{
+		player.y--;
+		player.vy = 0;
+		player.canJump = true;
+		jumpsLeft = 2;
+	}
+	while(platform2.hitTestPoint(player.left()) && player.vx <=0)
+	{
+		player.x++;
+		player.vx = 0;
+	}
+	while(platform2.hitTestPoint(player.right()) && player.vx >=0)
+	{
+		player.x--;
+		player.vx = 0;
+	}
+	while(platform2.hitTestPoint(player.top()) && player.vy <=0)
+	{
+		player.canJump = true;
+		jumpsLeft = 2;
+		player.y++;
+		player.vy = 0;
+	}
+
+
+	//goal
+	if( !won && player.hitTestObject(goal))
+	{
+		won = true;
 		goal.y = 10000;
+		//context.textAlign = "center";
+		//context.drawText("You Win!!!", canvas.width/2, canvas.height/2);
+	}
+
+	if(won)
+	{
+		
+		context.font = "30px Arial";
+		context.fillStyle = "black";
 		context.textAlign = "center";
-		context.drawText("You Win!!!", canvas.width/2, canvas.height/2);
+		context.fillText("You Win!!!", canvas.width/2, canvas.height/2);
 	}
 	
 	
 	platform0.drawRect();
+	platform1.drawRect();
+	platform2.drawRect();
 
 	//Show hit points
 	player.drawRect();
